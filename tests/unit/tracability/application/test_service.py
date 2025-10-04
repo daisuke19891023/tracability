@@ -2,17 +2,25 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
-import pytest
+from typing import TYPE_CHECKING
 
 from tracability import Level, TraceGraph
+from tracability.application import service as service_module
 from tracability.application.service import TraceabilityService
 from tracability.domain import TraceResult
 from tracability.domain.models import Node
-from tracability.infrastructure import LoadOptions
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    import pytest
+
+    from tracability.infrastructure import LoadOptions
 
 
-def test_from_files_invokes_loader_with_expected_options(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_from_files_invokes_loader_with_expected_options(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """from_files should call loader with provided paths and options."""
     captured: dict[str, object] = {}
 
@@ -36,11 +44,7 @@ def test_from_files_invokes_loader_with_expected_options(monkeypatch: pytest.Mon
         return graph
 
     # Patch the loader symbol used inside the service module
-    monkeypatch.setattr(
-        "tracability.application.service.load_graph",
-        fake_load_graph,
-        raising=True,
-    )
+    monkeypatch.setattr(service_module, "load_graph", fake_load_graph)
 
     svc = TraceabilityService.from_files(
         relations_csv="relations.csv",
@@ -52,13 +56,13 @@ def test_from_files_invokes_loader_with_expected_options(monkeypatch: pytest.Mon
     )
 
     assert isinstance(svc, TraceabilityService)
-    assert getattr(svc, "graph") is captured["graph"]
+    assert svc.graph is captured["graph"]
 
 
 def test_query_converts_levels_and_delegates_and_formats(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """query should convert levels, delegate to graph.trace, and format results."""
+    """Query should convert levels, delegate to graph.trace, and format results."""
     calls: list[dict[str, object]] = []
     last: dict[str, object] = {}
 
@@ -90,7 +94,7 @@ def test_query_converts_levels_and_delegates_and_formats(
             }
             calls.append(kwargs)
             result = [
-                TraceResult(node=Node(level=to_level, id="X"), crud=None, path=[])
+                TraceResult(node=Node(level=to_level, id="X"), crud=None, path=[]),
             ]
             last["results"] = result
             return result
@@ -98,7 +102,7 @@ def test_query_converts_levels_and_delegates_and_formats(
     formatted_sentinel = {"ok": True}
 
     def fake_format_results(
-        results: Sequence[TraceResult], *, fmt: str, include_path: bool
+        results: Sequence[TraceResult], *, fmt: str, include_path: bool,
     ) -> object:
         # Validate the service passed through the results and flags correctly
         assert results is last["results"]
@@ -107,11 +111,7 @@ def test_query_converts_levels_and_delegates_and_formats(
         return formatted_sentinel
 
     # Patch the formatter symbol used inside the service module
-    monkeypatch.setattr(
-        "tracability.application.service.format_results",
-        fake_format_results,
-        raising=True,
-    )
+    monkeypatch.setattr(service_module, "format_results", fake_format_results)
 
     svc = TraceabilityService(graph=DummyGraph())
 
@@ -144,7 +144,7 @@ def test_query_converts_levels_and_delegates_and_formats(
 def test_query_accepts_level_enums_and_custom_relations(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """query should accept Level enums and forward custom relations set."""
+    """Query should accept Level enums and forward custom relations set."""
     calls: list[dict[str, object]] = []
 
     class DummyGraph(TraceGraph):
@@ -177,17 +177,13 @@ def test_query_accepts_level_enums_and_custom_relations(
             return [TraceResult(node=Node(level=to_level, id="Y"), crud=None, path=[])]
 
     def fake_format_results(
-        results: Sequence[TraceResult], *, fmt: str, include_path: bool
+        _results: Sequence[TraceResult], *, fmt: str, include_path: bool,
     ) -> object:
         assert fmt == "json"
         assert include_path is False
         return "FORMATTED"
 
-    monkeypatch.setattr(
-        "tracability.application.service.format_results",
-        fake_format_results,
-        raising=True,
-    )
+    monkeypatch.setattr(service_module, "format_results", fake_format_results)
 
     svc = TraceabilityService(graph=DummyGraph())
 
