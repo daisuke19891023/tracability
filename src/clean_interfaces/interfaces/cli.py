@@ -4,6 +4,7 @@ import typer
 from rich.console import Console
 
 from clean_interfaces.models.io import WelcomeMessage
+from tracability.interfaces.cli import add_trace_command
 
 from .base import BaseInterface
 
@@ -39,6 +40,16 @@ class CLIInterface(BaseInterface):
         """Set up CLI commands."""
         # Set the default command to welcome
         self.app.command(name="welcome")(self.welcome)
+
+        def _print_error(message: str) -> None:
+            """Render error messages in red for CLI feedback."""
+            console.print(f"[bold red]{message}[/bold red]")
+
+        add_trace_command(
+            self.app,
+            printer=console.print,
+            error_printer=_print_error,
+        )
 
         # Add a callback that shows welcome when no command is specified
         self.app.callback(invoke_without_command=True)(self._main_callback)

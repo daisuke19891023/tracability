@@ -94,10 +94,13 @@ def sample_files(
 
     # Create YAML file
     yaml_path = temp_dir / "test_config.yaml"
-    yaml_path.write_text(
-        yaml.dump(sample_yaml_data, default_flow_style=False, allow_unicode=True),
-        encoding="utf-8",
+    yaml_text = yaml.dump(
+        sample_yaml_data,
+        default_flow_style=False,
+        allow_unicode=True,
     )
+    assert yaml_text is not None
+    yaml_path.write_text(yaml_text, encoding="utf-8")
     files["yaml"] = yaml_path
 
     # Create UTF-8 text file

@@ -344,6 +344,9 @@ class FileHandler:
                 sort_keys=sort_keys,
                 allow_unicode=True,
             )
+            if yaml_content is None:
+                msg = "yaml.dump returned None when no stream was provided"
+                raise ValueError(msg)
             self.write_text(
                 path,
                 yaml_content,

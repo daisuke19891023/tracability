@@ -72,7 +72,7 @@ import pytest
 from pathlib import Path
 from unittest.mock import Mock, patch, mock_open
 
-from clean_interfaces.utils.file_handler import FileHandler
+from tracability.infrastructure.files.file_handler import FileHandler
 
 
 class TestFileHandler:
