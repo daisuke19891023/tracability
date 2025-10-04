@@ -1,17 +1,19 @@
 # Installation
 
-This guide covers the installation of Clean Interfaces.
+Tracability ships as a Python project managed with [uv](https://github.com/astral-sh/uv). The tool requires Python 3.13 or
+newer as defined in `pyproject.toml` and exposes a console script named `trcli`.【F:pyproject.toml†L5-L44】
+
+👉 日本語のインストールガイドは [こちら](ja/installation.md)。
 
 ## Requirements
 
--   Python 3.13 or higher
--   uv (Python package manager)
+- Python ≥ 3.13
+- uv 0.4+
+- Git (if installing from source)
 
-## Installing uv
+## Install uv
 
-If you don't have uv installed, you can install it using:
-
-=== "Linux/macOS"
+=== "Linux / macOS"
 
     ```bash
     curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -23,106 +25,43 @@ If you don't have uv installed, you can install it using:
     powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
     ```
 
-## Installation Steps
-
-### From Source
-
-1. **Clone the repository**
-
-    ```bash
-    git clone https://github.com/your-username/clean-interfaces.git
-    cd clean-interfaces
-    ```
-
-2. **Create virtual environment and install dependencies**
-
-    ```bash
-    uv sync
-    ```
-
-3. **Install with optional dependencies** (if needed)
-
-    ```bash
-    # Install with documentation tools
-    uv sync --extra docs
-
-    # Install with development tools
-    uv sync --extra dev
-
-    # Install all extras
-    uv sync --all-extras
-    ```
-
-### From PyPI
-
-!!! note "Coming Soon"
-PyPI package installation will be available once the package is published.
+## Install from Source
 
 ```bash
-# Basic installation
-uv pip install clean-interfaces
-
-# With extras
-uv pip install "clean-interfaces[docs]"
+git clone https://github.com/your-org/tracability.git
+cd tracability
+uv sync
 ```
 
-## Configuration
+- `uv sync` creates an isolated `.venv` and installs dependencies plus the `trcli` entry point.
+- Use `uv run trcli --help` to verify the CLI is available.
 
-1. **Copy the example configuration**
-
-    ```bash
-    cp .env.example .env
-    ```
-
-2. **Edit `.env` with your configuration**
-
-    ```ini
-    # Example configuration
-    INTERFACE_TYPE=cli
-    LOG_LEVEL=INFO
-    LOG_FORMAT=console
-    ```
-
-## Verification
-
-Verify the installation by running:
+## Optional Extras
 
 ```bash
-# Show help
-uv run python -m clean_interfaces.main --help
-
-# Run the application
-uv run python -m clean_interfaces.main
+uv sync --extra dev    # development tooling
+uv sync --extra docs   # documentation builders
 ```
 
-You should see output indicating that the application is running successfully.
+These extras correspond to optional dependency groups declared in `pyproject.toml`.
+
+## Verifying the Installation
+
+```bash
+uv run trcli trace --help
+```
+
+You should see the `trace` command with all options described in the CLI reference.【F:src/tracability/interfaces/cli/commands.py†L71-L196】 Running the command without the
+`--relations` flag triggers validation errors, confirming Typer is wired correctly.
 
 ## Troubleshooting
 
-### Common Issues
-
-#### ImportError
-
-If you encounter import errors, ensure you're running the command with `uv run`:
-
-```bash
-# Wrong
-python -m clean_interfaces.main
-
-# Correct
-uv run python -m clean_interfaces.main
-```
-
-#### Environment Variables Not Loading
-
-Make sure your `.env` file is in the project root directory, or specify it explicitly:
-
-```bash
-uv run python -m clean_interfaces.main --dotenv /path/to/your/.env
-```
+- **Command not found** – Ensure you ran `uv run trcli ...` or activated the virtual environment.
+- **Encoding issues** – Pass `--encoding` and `--delimiter` to match your CSV exports.【F:src/tracability/interfaces/cli/commands.py†L134-L196】【F:src/tracability/application/service.py†L25-L118】
+- **No results** – Confirm the target identifier exists. The underlying graph looks up nodes using ID, logical name, or alias based
+  on the `--by` option.【F:src/tracability/domain/graph.py†L132-L207】
 
 ## Next Steps
 
--   Read the [Quick Start](quickstart.md) guide
--   Learn about [Configuration](configuration.md)
--   Explore the [CLI Interface](guides/cli.md) or [REST API Interface](guides/restapi.md)
+- Follow the [Quick Start](quickstart.md) to run a full traversal.
+- Read the [CLI Reference](guides/cli.md) for advanced usage patterns.

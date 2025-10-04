@@ -1,333 +1,154 @@
-# Clean Interfaces
+# Tracability
 
-A flexible Python application framework with multiple interface types and comprehensive logging support.
+A command line tool and Python library for exploring traceability relationships across business subsystems, functions, programs,
+and downstream artefacts such as screens, reports, and database tables.
 
-## Features
+👉 日本語版の README は [README.ja.md](README.ja.md) を参照してください。
 
--   **Multiple Interface Types**: Support for CLI and REST API interfaces
--   **Flexible Configuration**: Environment-based configuration with `.env` file support
--   **Structured Logging**: Advanced logging with OpenTelemetry integration
--   **Modern Python**: Built with Python 3.13+ and modern tooling
--   **Comprehensive Testing**: Unit, API, and E2E test coverage
--   **Type Safety**: Full type hints with strict Pyright checking
--   **Code Quality**: Automated linting and formatting with Ruff
--   **Dependency Management**: Managed with uv for fast, reliable builds
+The project is optimised for Japanese/English mixed CSV exports that are common in enterprise requirement management. Flexible
+parsing, breadth-first graph traversal, and multiple output formats make it easy to answer "where is this requirement used?" or
+"which programs touch this table?" directly from your modelling spreadsheets.
 
-## Project Structure
+## Key Features
 
-```
-clean-interfaces/
-├── src/clean_interfaces/       # Main application code
-│   ├── __init__.py            # Package initialization
-│   ├── app.py                 # Application entry point
-│   ├── base.py                # Base component class
-│   ├── main.py                # CLI entry point with --dotenv support
-│   ├── types.py               # Type definitions
-│   ├── interfaces/            # Interface implementations
-│   │   ├── __init__.py
-│   │   ├── base.py           # Base interface class
-│   │   ├── cli.py            # CLI interface using Typer
-│   │   ├── factory.py        # Interface factory pattern
-│   │   └── restapi.py        # REST API interface using FastAPI
-│   ├── models/                # Data models
-│   │   ├── __init__.py
-│   │   ├── api.py            # API response models
-│   │   └── io.py             # I/O models (e.g., WelcomeMessage)
-│   └── utils/                 # Utility modules
-│       ├── __init__.py
-│       ├── file_handler.py    # File handling utilities
-│       ├── logger.py          # Structured logging setup
-│       ├── otel_exporter.py   # (removed) OpenTelemetry exporter (removed for stability)
-│       └── settings.py        # Application settings
-├── tests/                      # Test suite
-│   ├── unit/                  # Unit tests
-│   ├── api/                   # API tests
-│   └── e2e/                   # End-to-end tests
-├── docs/                       # Documentation
-├── constraints/                # Dependency constraints
-├── .env                       # Environment configuration (not in git)
-├── .env.example               # Example environment configuration
-├── pyproject.toml             # Project configuration
-├── noxfile.py                 # Task automation
-├── CLAUDE.md                  # AI assistant instructions
-└── README.md                  # This file
-```
+- **CSV-first workflow** – Build a traceability graph from relations and optional master CSV files while automatically resolving
+  header aliases in Japanese and English.【F:src/tracability/infrastructure/csv/loader.py†L1-L189】
+- **Configurable traversals** – Perform bounded breadth-first searches between any supported levels with direction, relation, and
+  depth controls.【F:src/tracability/domain/graph.py†L39-L207】
+- **Rich CLI experience** – `typer` based CLI with validated options, optional pretty printers, and JSON/list/string output
+  formats.【F:src/tracability/interfaces/cli/commands.py†L36-L196】【F:src/tracability/interfaces/formatter.py†L1-L63】
+- **Reusable service layer** – Import `TraceabilityService` inside Python applications or tests to execute the same queries used by
+  the CLI.【F:src/tracability/application/service.py†L11-L118】
 
-## Quick Start
+## Installation
 
-### Prerequisites
-
--   Python 3.13 or higher
--   uv (Python package manager)
-
-### Installation
+Tracability targets Python 3.13+ and is managed with [uv](https://github.com/astral-sh/uv).
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd clean-interfaces
+git clone https://github.com/your-org/tracability.git
+cd tracability
 
-# Create virtual environment and install dependencies
+# Install dependencies (creates .venv automatically)
 uv sync
 
-# Copy environment configuration
-cp .env.example .env
-
-# Edit .env with your configuration
-```
-
-### Running the Application
-
-```bash
-# Run with default settings (uses .env file)
-uv run python -m clean_interfaces.main
-
-# Run with custom environment file
-uv run python -m clean_interfaces.main --dotenv prod.env
-
-# Show help
-uv run python -m clean_interfaces.main --help
-```
-
-## Configuration
-
-### Environment Variables
-
-Configuration is managed through environment variables. See `.env.example` for all available options:
-
-| Variable         | Description                                  | Default | Options                                         |
-| ---------------- | -------------------------------------------- | ------- | ----------------------------------------------- |
-| `INTERFACE_TYPE` | Interface to use                             | `cli`   | `cli`, `restapi`                                |
-| `LOG_LEVEL`      | Logging level                                | `INFO`  | `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL` |
-| `LOG_FORMAT`     | Log output format                            | `json`  | `json`, `console`, `plain`                      |
-| `LOG_FILE_PATH`  | Log file path                                | None    | Any valid file path                             |
-| `OTEL_*`         | [Deprecated] OpenTelemetry exporter settings | -       | Removed                                         |
-
-### Using Custom Environment Files
-
-You can specify custom environment files using the `--dotenv` option:
-
-```bash
-# Development environment
-uv run python -m clean_interfaces.main --dotenv dev.env
-
-# Production environment
-uv run python -m clean_interfaces.main --dotenv prod.env
-
-# Testing environment
-uv run python -m clean_interfaces.main --dotenv test.env
-```
-
-## Development
-
-### Setup Development Environment
-
-```bash
-# Install development dependencies
+# Optional: install development extras
 uv sync --extra dev
-
-# Install pre-commit hooks
-uv run pre-commit install
 ```
 
-### Development Commands
+A console entry point named `trcli` is installed as part of the package metadata.【F:pyproject.toml†L5-L44】 You can run it directly
+from the virtual environment via `uv run trcli`.
 
-| Command              | Description         |
-| -------------------- | ------------------- |
-| `nox -s lint`        | Run code linting    |
-| `nox -s format_code` | Format code         |
-| `nox -s typing`      | Run type checking   |
-| `nox -s test`        | Run all tests       |
-| `nox -s security`    | Run security checks |
-| `nox -s docs`        | Build documentation |
-| `nox -s ci`          | Run all CI checks   |
+## Preparing Your Data
 
-### Testing
+The CLI requires at minimum a `relations.csv` file describing hierarchical relationships between subsystems, businesses, functions,
+and programs. Optional master files can enrich the graph with screen, report, and table metadata. Column headers are matched using a
+large alias table, so both Japanese and English exports are accepted without manual renaming.【F:src/tracability/infrastructure/csv/loader.py†L1-L189】
+
+### Required Relations Columns
+
+The loader attempts to resolve the following fields (case-insensitive, alias aware):
+
+| Field            | Purpose                                 |
+| ---------------- | --------------------------------------- |
+| `subsystem_id`   | Subsystem identifier                    |
+| `subsystem_name` | Subsystem logical name                  |
+| `business_id`    | Business identifier                     |
+| `business_name`  | Business logical name                   |
+| `function_id`    | Function identifier                     |
+| `function_name`  | Function logical name                   |
+| `program_id`     | Program identifier                      |
+| `program_name`   | Program logical name                    |
+| `screen_id`      | Linked screen identifier (optional)     |
+| `report_id`      | Linked report identifier (optional)     |
+| `table_id`       | CRUD target table identifier (optional) |
+| `crud`           | CRUD operations such as `CUD`           |
+
+If optional screen/report/table master CSVs are provided, Tracability enriches the nodes with logical/physical names and links them
+to their parent function automatically.【F:src/tracability/infrastructure/csv/loader.py†L91-L170】
+
+## CLI Quick Start
+
+Create a minimal set of CSV files (see `tests/unit/tracability/test_cli_command.py` for a concise example fixture) and run:
 
 ```bash
-# Run all tests
-nox -s test
-
-# Run specific test file
-uv run pytest tests/unit/clean_interfaces/test_app.py
-
-# Run with coverage
-uv run pytest --cov=src --cov-report=html
+uv run trcli trace \
+  --relations data/relations.csv \
+  --from-level program \
+  --to-level screen \
+  --target PRG110 \
+  --screens data/screens.csv \
+  --format json
 ```
 
-### Code Quality
+The command loads the CSV files, constructs the traceability graph, and prints the result in the requested format. Errors are
+reported with helpful messages and non-zero exit codes.【F:src/tracability/interfaces/cli/commands.py†L71-L196】
 
-The project maintains high code quality standards:
+### Command Options
 
--   **Type Checking**: Strict Pyright type checking
--   **Linting**: Comprehensive Ruff rules
--   **Formatting**: Automated with Ruff formatter
--   **Testing**: 80% minimum coverage requirement
--   **Security**: Regular security scanning
+| Option                | Description                                                                 |
+| --------------------- | --------------------------------------------------------------------------- |
+| `--relations, -r`     | Path to the mandatory relations CSV (validated for existence).              |
+| `--from-level, -f`    | Start level for traversal (e.g. `program`, `business`).                      |
+| `--to-level, -t`      | Destination level (e.g. `table`, `screen`).                                  |
+| `--target`            | ID or name of the start node.                                                |
+| `--by`                | Interpret target as `auto`, `id`, or `name`.                                 |
+| `--screens`           | Optional screens master CSV.                                                 |
+| `--reports`           | Optional reports master CSV.                                                 |
+| `--tables`            | Optional tables master CSV.                                                  |
+| `--relations-filter`  | Comma separated list of relations to follow (`hierarchy`, `screen`, `crud`). |
+| `--include-path`      | Include the traversed edges in the response.                                 |
+| `--format, -m`        | Output format: `string`, `list`, or `json`.                                   |
+| `--encoding`          | CSV encoding (defaults to `utf-8-sig`).                                      |
+| `--delimiter`         | CSV delimiter (defaults to comma).                                           |
+| `--max-depth`         | Maximum breadth-first depth (defaults to 16).                                |
 
-## Interface Types
+See `trcli trace --help` for the authoritative list with help text pulled directly from the Typer definitions.【F:src/tracability/interfaces/cli/commands.py†L71-L196】
 
-### CLI Interface
+### Output Formats
 
-The default interface provides a command-line interface using Typer:
+- `string` – Human-readable list with optional path expansion and CRUD summary, using Japanese fallback when no matches are
+  found.【F:src/tracability/interfaces/formatter.py†L34-L63】
+- `list` – JSON-serialisable list of dictionaries suitable for downstream processing.【F:src/tracability/interfaces/formatter.py†L19-L50】
+- `json` – Preformatted JSON string (indent=2) that mirrors the list structure.【F:src/tracability/interfaces/formatter.py†L51-L63】
 
-```bash
-# Run CLI interface
-INTERFACE_TYPE=cli uv run python -m clean_interfaces.main
-```
+## Python API
 
-Features:
-
--   Interactive command-line interface
--   Rich terminal output
--   Help documentation
--   Command completion
-
-### REST API Interface
-
-The REST API interface provides HTTP endpoints using FastAPI:
-
-```bash
-# Run REST API interface
-INTERFACE_TYPE=restapi uv run python -m clean_interfaces.main
-```
-
-Features:
-
--   OpenAPI documentation
--   Automatic request validation
--   JSON responses
--   Async support
-
-## Logging
-
-The application uses structured logging with multiple output formats:
-
-### JSON Format (Production)
-
-```json
-{
-    "timestamp": "2025-07-20T10:30:45.123Z",
-    "level": "info",
-    "logger": "clean_interfaces.app",
-    "message": "Application started",
-    "interface": "cli"
-}
-```
-
-### Console Format (Development)
-
-```
-2025-07-20 10:30:45 [INFO] clean_interfaces.app: Application started interface=cli
-```
-
-### OpenTelemetry Integration
-
-When enabled, logs can be exported to OpenTelemetry collectors:
-
-```bash
-# Enable OTLP export
-# OpenTelemetry exporter was removed. Trace context may still be included if OTEL is present.
-```
-
-## Documentation
-
-### Building Documentation
-
-```bash
-# Build with Sphinx (API documentation)
-nox -s docs
-
-# Build with MkDocs (user guide)
-uv run mkdocs build
-
-# Serve documentation locally
-uv run mkdocs serve
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run quality checks (`nox -s ci`)
-5. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
-
-### Development Guidelines
-
--   Follow conventional commits
--   Maintain test coverage above 80%
--   Ensure all type checks pass
--   Update documentation as needed
--   Add tests for new features
-
-### Pre-commit Setup
-
-This project uses pre-commit hooks to ensure code quality. The hooks run automatically before each commit.
-
-#### Installation
-
-```bash
-# Install pre-commit hooks
-uv run pre-commit install
-```
-
-#### Manual Run
-
-```bash
-# Run on all files
-uv run pre-commit run --all-files
-
-# Run on staged files only
-uv run pre-commit run
-```
-
-#### Hook Configuration
-
-The pre-commit hooks use nox to ensure consistency with the project's configuration:
-
--   **ruff format**: Formats code according to `pyproject.toml` settings
--   **ruff lint**: Checks and fixes linting issues based on `pyproject.toml` rules
--   **pyright**: Type checks the code using project settings
-
-All hooks respect the configuration in `pyproject.toml`, ensuring no divergence between pre-commit and regular development commands.
-
-### Testing Helpers
-
-This project includes testing helpers to make debugging easier:
-
-#### Pexpect Debug Helper
-
-For E2E tests using pexpect, use the debug helper:
+If you need to embed the functionality in another system, use the service layer:
 
 ```python
-from tests.helpers.pexpect_debug import run_cli_with_debug
+from tracability.application import TraceabilityService
 
-# Run with debug output enabled
-output, exitstatus = run_cli_with_debug(
-    "python -m clean_interfaces.main --help",
-    env=clean_env,
-    timeout=10,
-    debug=True,  # Enable debug output
+service = TraceabilityService.from_files(
+    "data/relations.csv",
+    screens_csv="data/screens.csv",
+    encoding="utf-8-sig",
+)
+results = service.query(
+    "program",
+    "table",
+    "PRG110",
+    relations={"crud"},
+    fmt="list",
+    include_path=True,
 )
 ```
 
-Enable debug mode in CI by setting `PYTEST_DEBUG=1` environment variable.
+The same configuration options exposed by the CLI are available when calling `TraceabilityService.query`. Traversal uses a bounded
+breadth-first search with relation filtering and optional reverse CRUD edges, ensuring predictable performance on large datasets.【F:src/tracability/application/service.py†L39-L118】【F:src/tracability/domain/graph.py†L99-L207】
 
-### GitHub Actions Integration
+## Development and Testing
 
-This project includes a GitHub Actions workflow for Claude Code integration (`.github/workflows/claude.yml`).
+Run the nox sessions to execute quality gates:
 
-**⚠️ Current Status (2025-07-20)**: The `claude-code-action@beta` is experiencing issues where the Claude CLI is not properly installed in the GitHub Actions environment. Until Anthropic fixes this issue, the workflow will not function correctly. You can still use Claude Code manually through the web interface.
+```bash
+uv run nox -s lint
+uv run nox -s typing
+uv run nox -s test
+```
+
+Unit tests include CLI fixtures that demonstrate minimal CSV inputs and expected outputs.【F:tests/unit/tracability/test_cli_command.py†L1-L44】 Inspect these when crafting your own datasets.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
--   Built with modern Python tooling
--   Inspired by clean architecture principles
--   Designed for extensibility and maintainability
+This project is released under the MIT License. See [LICENSE](LICENSE) for details.
