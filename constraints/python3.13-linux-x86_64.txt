@@ -111,7 +111,7 @@ h11==0.16.0
     # via
     #   httpcore
     #   uvicorn
-hatch==1.14.1
+hatch==1.14.2
     # via clean-interfaces (pyproject.toml)
 hatchling==1.27.0
     # via hatch
