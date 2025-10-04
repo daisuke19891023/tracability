@@ -10,7 +10,6 @@ app = create_app()
 
 def main() -> None:
     """Execute the tracability CLI application."""
-
     app()
 
 

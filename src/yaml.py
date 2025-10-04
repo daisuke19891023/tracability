@@ -22,7 +22,7 @@ class YAMLError(ValueError):
 
 def _ensure_text(stream: str | bytes | IO[str] | IO[bytes]) -> str:
     if hasattr(stream, "read"):
-        readable = cast(IO[str] | IO[bytes], stream)
+        readable = cast("IO[str] | IO[bytes]", stream)
         data = readable.read()
         if isinstance(data, bytes):
             return data.decode("utf-8")

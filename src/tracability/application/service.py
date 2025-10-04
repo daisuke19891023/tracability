@@ -17,7 +17,6 @@ class TraceabilityService:
 
     def __init__(self, graph: TraceGraph) -> None:
         """Create a service backed by the provided graph."""
-
         self.graph = graph
 
     @classmethod
@@ -30,9 +29,8 @@ class TraceabilityService:
         tables_csv: str | None = None,
         encoding: str = "utf-8-sig",
         delimiter: str = ",",
-    ) -> "TraceabilityService":
+    ) -> TraceabilityService:
         """Build a service by loading CSV resources from disk."""
-
         graph = load_graph(
             relations_csv,
             screens_csv=screens_csv,
@@ -104,8 +102,9 @@ class TraceabilityService:
         direction: str = "both",
     ) -> TraceOutput:
         """Execute a trace query and format the results."""
-
-        from_lvl = from_level if isinstance(from_level, Level) else Level.parse(from_level)
+        from_lvl = (
+            from_level if isinstance(from_level, Level) else Level.parse(from_level)
+        )
         to_lvl = to_level if isinstance(to_level, Level) else Level.parse(to_level)
         rels = relations or {"hierarchy", "screen", "report", "crud"}
         results = self.graph.trace(

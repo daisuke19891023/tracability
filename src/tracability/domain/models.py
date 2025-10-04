@@ -1,5 +1,3 @@
-"""Data models for traceability graph components."""
-
 """Domain models defining traceability nodes and levels."""
 
 from __future__ import annotations

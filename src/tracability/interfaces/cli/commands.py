@@ -43,7 +43,7 @@ def add_trace_command(
     error_printer: Printer | None = None,
 ) -> None:
     """Register the ``trace`` command on the provided Typer application."""
-    output: Printer = printer or cast(Printer, typer.echo)
+    output: Printer = printer or cast("Printer", typer.echo)
 
     def _default_error_printer(message: str) -> None:
         typer.echo(message, err=True)

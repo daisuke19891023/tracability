@@ -9,7 +9,6 @@ from tracability.interfaces.cli.commands import add_trace_command
 
 def create_app() -> typer.Typer:
     """Construct a Typer application with the trace command registered."""
-
     application = typer.Typer(
         name="tracability",
         help="Traceability graph query tool",

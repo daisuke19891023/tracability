@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import csv
-from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
+import typing as t
 
 from tracability.domain import Level, Node, NodeIndex, TraceGraph
 from tracability.shared.utils import nfkc_lower, parse_crud
@@ -102,15 +102,15 @@ def _match_score(field: str, header: str) -> int:
 
 
 def _resolve_columns(
-    headers: Sequence[str],
-    needed: Sequence[str],
+    headers: t.Sequence[str],
+    needed: t.Sequence[str],
 ) -> dict[str, str | None]:
     normalized: dict[str, str] = {}
     for header in headers:
         if not header:
             continue
         normalized[header] = nfkc_lower(header) or ""
-    result: dict[str, str | None] = {field: None for field in needed}
+    result: dict[str, str | None] = dict.fromkeys(needed)
     used: set[str] = set()
 
     for field in needed:
@@ -129,7 +129,7 @@ def _resolve_columns(
     return result
 
 
-def _get(row: Mapping[str, str | None], col: str | None) -> str | None:
+def _get(row: t.Mapping[str, str | None], col: str | None) -> str | None:
     if not col:
         return None
     target = nfkc_lower(col)

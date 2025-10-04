@@ -4,9 +4,8 @@
 from __future__ import annotations
 
 from collections import defaultdict, deque
-from collections.abc import Iterable, Iterator
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+import typing as t
 
 from tracability.domain.index import NodeIndex, NodeKey
 from tracability.domain.models import Level, Node
@@ -14,10 +13,6 @@ from tracability.domain.models import Level, Node
 PathEntry = tuple[NodeKey, str, NodeKey]
 State = tuple[NodeKey, list[PathEntry], set[str]]
 TracePathStep = tuple[Node, str, Node]
-
-if TYPE_CHECKING:  # pragma: no cover - optional dependency typing
-    import networkx as nx
-
 
 def _new_str_set() -> set[str]:
     return set()
@@ -54,7 +49,7 @@ class TraceGraph:
         src: Node,
         dst: Node,
         relation: str,
-        crud_ops: Iterable[str] | None = None,
+        crud_ops: t.Iterable[str] | None = None,
     ) -> None:
         """Create or update an edge between two nodes."""
         src_key, dst_key = src.key(), dst.key()
@@ -92,7 +87,7 @@ class TraceGraph:
         self,
         pg: Node | None,
         tb: Node | None,
-        ops: Iterable[str] | None,
+        ops: t.Iterable[str] | None,
     ) -> None:
         """Register CRUD relationships between a program and a table."""
         if pg and tb:
@@ -104,7 +99,7 @@ class TraceGraph:
         relations: set[str],
         direction: str,
         allow_reverse_crud: bool,
-    ) -> Iterator[tuple[NodeKey, EdgeMeta]]:
+    ) -> t.Iterator[tuple[NodeKey, EdgeMeta]]:
         if direction in {"both", "forward"}:
             for nxt_key, meta in self._fwd.get(key, {}).items():
                 if meta.relation in relations:
@@ -251,7 +246,7 @@ class TraceGraph:
                 node=node,
                 crud=set(crud_acc) if crud_acc else None,
                 path=path_nodes,
-            )
+            ),
         )
 
     def _enqueue_neighbor(
@@ -285,29 +280,3 @@ class TraceGraph:
             if key not in unique:
                 unique[key] = result
         return list(unique.values())
-
-    def to_networkx(self) -> "nx.DiGraph":
-        """Export the graph to a :mod:`networkx` ``DiGraph`` instance."""
-        try:
-            import networkx as nx
-        except ImportError as e:  # pragma: no cover - optional dependency
-            message = "networkx が未インストールです。`pip install networkx`"
-            raise RuntimeError(message) from e
-        digraph = nx.DiGraph()
-        for key, node in self.index.iter_nodes():
-            digraph.add_node(
-                key,
-                level=node.level.value,
-                id=node.id,
-                logical_name=node.logical_name,
-                physical_name=node.physical_name,
-            )
-        for s, adjs in self._fwd.items():
-            for d, meta in adjs.items():
-                digraph.add_edge(
-                    s,
-                    d,
-                    relation=meta.relation,
-                    crud=sorted(meta.crud) if meta.crud else None,
-                )
-        return digraph

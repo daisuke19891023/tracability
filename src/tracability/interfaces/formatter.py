@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-"""Presentation utilities for traceability query results."""
-
 import json
-from collections.abc import Sequence
-from typing import Literal, TypedDict
+import typing as t
+from typing import TYPE_CHECKING, Literal, TypedDict
 
-from tracability.domain.graph import TracePathStep, TraceResult
+if TYPE_CHECKING:  # pragma: no cover - typing only
+    from tracability.domain.graph import TracePathStep, TraceResult
 
 OutputFormat = Literal["string", "list", "json"]
 
@@ -42,7 +41,7 @@ def _format_path_entry(entry: TracePathStep) -> PathDict:
 
 
 def format_results(
-    results: Sequence[TraceResult],
+    results: t.Sequence[TraceResult],
     fmt: OutputFormat = "string",
     include_path: bool = False,
 ) -> str | list[ListResult]:
@@ -77,7 +76,9 @@ def format_results(
         lines.append(f"[{index}] {node.level.value}: {node.label()}{crud_suffix}")
         if include_path and record.path:
             for src, relation, dst in record.path:
-                lines.append(
-                    f"    {src.level.value}:{src.id} --{relation}--> {dst.level.value}:{dst.id}"
+                relation_text = (
+                    f"    {src.level.value}:{src.id} --{relation}--> "
+                    f"{dst.level.value}:{dst.id}"
                 )
+                lines.append(relation_text)
     return "\n".join(lines)

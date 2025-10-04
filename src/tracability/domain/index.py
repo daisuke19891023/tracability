@@ -27,6 +27,51 @@ class NodeIndex:
             lambda: defaultdict(set),
         )
 
+    def _register_names(self, level: Level, key: NodeKey, node: Node) -> None:
+        if node.logical_name:
+            logical_key = nfkc_lower(node.logical_name)
+            if logical_key is not None:
+                self._by_level_logical[level][logical_key].add(key)
+        if node.physical_name:
+            physical_key = nfkc_lower(node.physical_name)
+            if physical_key is not None:
+                self._by_level_physical[level][physical_key].add(key)
+
+    def _register_aliases(
+        self,
+        level: Level,
+        key: NodeKey,
+        aliases: set[str] | None,
+    ) -> None:
+        if not aliases:
+            return
+        for alias in aliases:
+            alias_key = nfkc_lower(alias)
+            if alias_key is not None:
+                self._aliases[level][alias_key].add(key)
+
+    def _create_node(
+        self,
+        level: Level,
+        identifier: str,
+        logical_name: str | None,
+        physical_name: str | None,
+        aliases: set[str] | None,
+    ) -> Node:
+        key = (level, identifier)
+        node = Node(
+            level=level,
+            id=identifier,
+            logical_name=logical_name,
+            physical_name=physical_name,
+            aliases=set(aliases or set()),
+        )
+        self._by_key[key] = node
+        self._by_level_id[level][identifier] = key
+        self._register_names(level, key, node)
+        self._register_aliases(level, key, node.aliases)
+        return node
+
     def upsert(
         self,
         level: Level,
@@ -39,42 +84,24 @@ class NodeIndex:
         key = (level, identifier)
         node = self._by_key.get(key)
         if node is None:
-            node = Node(
-                level=level,
-                id=identifier,
-                logical_name=logical_name,
-                physical_name=physical_name,
-                aliases=set(aliases or set()),
+            return self._create_node(
+                level,
+                identifier,
+                logical_name,
+                physical_name,
+                aliases,
             )
-            self._by_key[key] = node
-            self._by_level_id[level][identifier] = key
-            if node.logical_name:
-                logical_key = nfkc_lower(node.logical_name)
-                if logical_key is not None:
-                    self._by_level_logical[level][logical_key].add(key)
-            if node.physical_name:
-                physical_key = nfkc_lower(node.physical_name)
-                if physical_key is not None:
-                    self._by_level_physical[level][physical_key].add(key)
-            for alias in node.aliases:
-                alias_key = nfkc_lower(alias)
-                if alias_key is not None:
-                    self._aliases[level][alias_key].add(key)
-            return node
         self.rename(
             level,
             identifier,
             logical_name=logical_name,
             physical_name=physical_name,
         )
-        if aliases:
-            for a in aliases:
-                if a and a not in node.aliases:
-                    node.aliases.add(a)
-                    alias_key = nfkc_lower(a)
-                    if alias_key is not None:
-                        self._aliases[level][alias_key].add(key)
-        return self._by_key[key]
+        new_aliases = {a for a in aliases or set() if a and a not in node.aliases}
+        if new_aliases:
+            node.aliases.update(new_aliases)
+            self._register_aliases(level, key, new_aliases)
+        return node
 
     def get(self, level: Level, identifier: str) -> Node | None:
         """Return a node by its level and identifier."""
