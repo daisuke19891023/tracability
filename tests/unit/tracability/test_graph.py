@@ -43,7 +43,8 @@ def test_trace_program_to_screen_and_table_crud_forward() -> None:
     rs = res_screen[0]
     assert rs.node.id == "SC1"
     assert rs.crud is None
-    assert len(rs.path) == 1 and rs.path[0][1] == "screen"
+    assert len(rs.path) == 1
+    assert rs.path[0][1] == "screen"
 
     # Program -> Table (CRUD forward)
     res_table = g.trace(Level.PROGRAM, Level.TABLE, "PG1", include_path=True)
@@ -51,7 +52,8 @@ def test_trace_program_to_screen_and_table_crud_forward() -> None:
     rt = res_table[0]
     assert rt.node.id == "TB1"
     assert rt.crud == {"C", "R", "U"}
-    assert len(rt.path) == 1 and rt.path[0][1] == "crud"
+    assert len(rt.path) == 1
+    assert rt.path[0][1] == "crud"
 
 
 def test_trace_table_to_program_and_screen_via_reverse_crud() -> None:
@@ -71,7 +73,8 @@ def test_trace_table_to_program_and_screen_via_reverse_crud() -> None:
     rpg = res_pg[0]
     assert rpg.node.id == "PG1"
     assert rpg.crud == {"C", "R"}
-    assert len(rpg.path) == 1 and rpg.path[0][1] == "crud"
+    assert len(rpg.path) == 1
+    assert rpg.path[0][1] == "crud"
 
     # TABLE -> SCREEN through PROGRAM (reverse CRUD then forward SCREEN)
     res_sc = g.trace(Level.TABLE, Level.SCREEN, "TB1", include_path=True)
@@ -80,4 +83,5 @@ def test_trace_table_to_program_and_screen_via_reverse_crud() -> None:
     assert rsc.node.id == "SC1"
     assert rsc.crud == {"C", "R"}
     assert len(rsc.path) == 2
-    assert rsc.path[0][1] == "crud" and rsc.path[1][1] == "screen"
+    assert rsc.path[0][1] == "crud"
+    assert rsc.path[1][1] == "screen"
