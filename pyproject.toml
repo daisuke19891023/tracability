@@ -1,5 +1,5 @@
 [project]
-name = "clean-interfaces"
+name = "tracability"
 version = "0.1.0"
 description = "A test project for verification"
 readme = "README.md"
@@ -14,10 +14,10 @@ dependencies = [
     "uvicorn>=0.30.0",
     "typer>=0.16.0",
     "fastmcp>=2.12.2",
-] # Populated by user or later steps if needed
+]
 
 [project.scripts]
-clean-interfaces = "clean_interfaces.main:main"
+trcli = "tracability.cli:main"
 
 [project.optional-dependencies]
 docs = [

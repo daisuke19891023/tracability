@@ -57,4 +57,4 @@ Utility Modules
 
    clean_interfaces.utils.logger
    clean_interfaces.utils.settings
-   clean_interfaces.utils.file_handler
+   tracability.infrastructure.files.file_handler

@@ -1,4 +1,4 @@
-"""Unit tests for the file_handler module."""
+"""Unit tests for the tracability infrastructure file handler module."""
 
 import json
 from pathlib import Path
@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 import pytest
 import yaml
 
-from clean_interfaces.utils.file_handler import (
+from tracability.infrastructure.files.file_handler import (
     FileHandler,
     read_json,
     read_text,
@@ -17,6 +17,8 @@ from clean_interfaces.utils.file_handler import (
     write_text,
     write_yaml,
 )
+
+LOGGER_PATH = "tracability.infrastructure.files.file_handler.logger"
 
 
 class TestFileHandler:
@@ -290,7 +292,7 @@ class TestErrorHandlingWithLogging:
     """Test error handling and logging integration."""
 
     @pytest.mark.skip(reason="Mock logger is created at module import time")
-    @patch("clean_interfaces.utils.file_handler.logger")
+    @patch(LOGGER_PATH)
     def test_read_text_logs_file_not_found(
         self,
         mock_logger: Mock,
@@ -313,7 +315,7 @@ class TestErrorHandlingWithLogging:
         sample_files: dict[str, Path],
     ) -> None:
         """Test that UnicodeDecodeError is logged."""
-        with patch("clean_interfaces.utils.file_handler.logger") as mock_logger:
+        with patch(LOGGER_PATH) as mock_logger:
             # Force a decode error by using wrong encoding
             utf8_file = sample_files["utf8_text"]
             # Read UTF-8 file with CP932 encoding should fail
@@ -333,7 +335,7 @@ class TestErrorHandlingWithLogging:
         temp_dir: Path,
     ) -> None:
         """Test that TypeError from JSON serialization is logged."""
-        with patch("clean_interfaces.utils.file_handler.logger") as mock_logger:
+        with patch(LOGGER_PATH) as mock_logger:
             handler = FileHandler()
             test_path = temp_dir / "error.json"
 
@@ -350,7 +352,7 @@ class TestErrorHandlingWithLogging:
             error_msg = mock_logger.error.call_args[0][0]
             assert "Failed to serialize data to JSON" in error_msg
 
-    @patch("clean_interfaces.utils.file_handler.logger")
+    @patch(LOGGER_PATH)
     def test_successful_operations_logged(
         self,
         mock_logger: Mock,

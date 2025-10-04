@@ -9,7 +9,7 @@ File operations with encoding support and structured logging.
 ### FileHandler
 
 ```python
-from clean_interfaces.utils.file_handler import FileHandler
+from tracability.infrastructure.files.file_handler import FileHandler
 
 class FileHandler(BaseComponent):
     """Handle file operations with encoding support."""
@@ -128,7 +128,7 @@ def write_yaml(
 ### Convenience Functions
 
 ```python
-from clean_interfaces.utils.file_handler import (
+from tracability.infrastructure.files.file_handler import (
     read_text, write_text,
     read_json, write_json,
     read_yaml, write_yaml
@@ -271,7 +271,7 @@ def get_interface_settings() -> InterfaceSettings:
 ### File Operations
 
 ```python
-from clean_interfaces.utils.file_handler import FileHandler
+from tracability.infrastructure.files.file_handler import FileHandler
 
 # Context manager usage
 with FileHandler(encoding="utf-8") as handler:

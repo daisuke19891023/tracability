@@ -22,7 +22,7 @@ Settings Module
 File Handler Module
 -------------------
 
-.. automodule:: clean_interfaces.utils.file_handler
+.. automodule:: tracability.infrastructure.files.file_handler
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,4 +1,4 @@
-"""End-to-end integration tests for file_handler with logger module."""
+"""End-to-end integration tests for tracability's file handler with logger."""
 
 import logging
 from pathlib import Path
@@ -8,7 +8,7 @@ import pytest
 import structlog
 import yaml
 
-from clean_interfaces.utils.file_handler import FileHandler
+from tracability.infrastructure.files.file_handler import FileHandler
 from clean_interfaces.utils.logger import configure_logging, get_logger
 
 

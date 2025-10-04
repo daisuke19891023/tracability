@@ -26,7 +26,7 @@ The Clean Interfaces package is organized into the following modules:
 
 ### Utility Modules
 
--   **[utils.file_handler](utils.md#file-handler)**: File operations with encoding support
+-   **[infrastructure.files.file_handler](utils.md#file-handler)**: File operations with encoding support
 -   **[utils.logger](utils.md#logging)**: Structured logging configuration
 
 -   **[utils.settings](utils.md#settings)**: Application settings management
@@ -62,7 +62,7 @@ from clean_interfaces.models.api import (
 from clean_interfaces.models.io import WelcomeMessage
 
 # Utilities
-from clean_interfaces.utils.file_handler import FileHandler
+from tracability.infrastructure.files.file_handler import FileHandler
 from clean_interfaces.utils.logger import configure_logging, get_logger
 from clean_interfaces.utils.settings import (
     get_logging_settings,
