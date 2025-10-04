@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from tracability import Level, TraceGraph
+from tracability.application import service as service_module
 from tracability.application.service import TraceabilityService
 from tracability.domain import TraceResult
 from tracability.domain.models import Node
@@ -43,11 +44,7 @@ def test_from_files_invokes_loader_with_expected_options(
         return graph
 
     # Patch the loader symbol used inside the service module
-    monkeypatch.setattr(
-        "tracability.application.service.load_graph",
-        fake_load_graph,
-        raising=True,
-    )
+    monkeypatch.setattr(service_module, "load_graph", fake_load_graph)
 
     svc = TraceabilityService.from_files(
         relations_csv="relations.csv",
@@ -114,11 +111,7 @@ def test_query_converts_levels_and_delegates_and_formats(
         return formatted_sentinel
 
     # Patch the formatter symbol used inside the service module
-    monkeypatch.setattr(
-        "tracability.application.service.format_results",
-        fake_format_results,
-        raising=True,
-    )
+    monkeypatch.setattr(service_module, "format_results", fake_format_results)
 
     svc = TraceabilityService(graph=DummyGraph())
 
@@ -190,11 +183,7 @@ def test_query_accepts_level_enums_and_custom_relations(
         assert include_path is False
         return "FORMATTED"
 
-    monkeypatch.setattr(
-        "tracability.application.service.format_results",
-        fake_format_results,
-        raising=True,
-    )
+    monkeypatch.setattr(service_module, "format_results", fake_format_results)
 
     svc = TraceabilityService(graph=DummyGraph())
 
