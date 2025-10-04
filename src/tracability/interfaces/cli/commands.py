@@ -4,14 +4,31 @@ from __future__ import annotations
 
 import json
 from collections.abc import Callable
+from enum import Enum
 from pathlib import Path  # noqa: TC003
-from typing import Annotated, Literal, cast
+from typing import Annotated, cast
 
 import typer
 
 from tracability.application import TraceabilityService
 
 DEFAULT_RELATIONS: frozenset[str] = frozenset({"hierarchy", "screen", "report", "crud"})
+
+
+class TargetMode(str, Enum):
+    """Enumeration of supported target interpretation strategies."""
+
+    AUTO = "auto"
+    ID = "id"
+    NAME = "name"
+
+
+class TraceFormat(str, Enum):
+    """Output formats supported by the CLI."""
+
+    STRING = "string"
+    LIST = "list"
+    JSON = "json"
 
 
 Printer = Callable[[str], None]
@@ -25,11 +42,11 @@ def _normalise_relations(value: str | None) -> set[str]:
     return parsed or set(DEFAULT_RELATIONS)
 
 
-def _render_output(payload: object, fmt: Literal["string", "list", "json"]) -> str:
+def _render_output(payload: object, fmt: TraceFormat) -> str:
     """Serialise command output based on the requested format."""
-    if fmt == "list":
+    if fmt is TraceFormat.LIST:
         return json.dumps(payload, ensure_ascii=False, indent=2)
-    if fmt == "json":
+    if fmt is TraceFormat.JSON:
         if isinstance(payload, str):
             return payload
         return json.dumps(payload, ensure_ascii=False, indent=2)
@@ -73,14 +90,14 @@ def add_trace_command(
         ],
         target: Annotated[str, typer.Option("--target", help="ID or name to resolve")],
         by: Annotated[
-            Literal["auto", "id", "name"],
+            TargetMode,
             typer.Option(
                 "--by",
                 help="Interpretation mode for target",
                 case_sensitive=False,
                 show_default=True,
             ),
-        ] = "auto",
+        ] = TargetMode.AUTO,
         screens: Annotated[
             Path | None,
             typer.Option(
@@ -130,7 +147,7 @@ def add_trace_command(
             ),
         ] = False,
         fmt: Annotated[
-            Literal["string", "list", "json"],
+            TraceFormat,
             typer.Option(
                 "--format",
                 "-m",
@@ -138,7 +155,7 @@ def add_trace_command(
                 case_sensitive=False,
                 show_default=True,
             ),
-        ] = "string",
+        ] = TraceFormat.STRING,
         encoding: Annotated[
             str,
             typer.Option("--encoding", help="CSV encoding", show_default=True),
@@ -167,10 +184,10 @@ def add_trace_command(
                 from_level,
                 to_level,
                 target,
-                by=by,
+                by=by.value,
                 relations=relation_set,
                 include_path=include_path,
-                fmt=fmt,
+                fmt=fmt.value,
                 max_depth=max_depth,
             )
             output(_render_output(results, fmt))
@@ -179,4 +196,3 @@ def add_trace_command(
             raise typer.Exit(code=1) from exc
 
     app.command("trace")(_trace_command)
-
