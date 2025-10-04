@@ -55,6 +55,11 @@ nav:
   - About:
       - License: about/license.md
       - Changelog: about/changelog.md
+  - 日本語:
+      - ホーム: ja/index.md
+      - クイックスタート: ja/quickstart.md
+      - インストール: ja/installation.md
+      - CLI リファレンス: ja/guides/cli.md
 
 markdown_extensions:
   - admonition

@@ -4,6 +4,8 @@ Tracability is a CSV-first traceability explorer. It turns system definition spr
 questions such as "which screens are connected to this function?" or "what tables does this program touch?" directly from the
 terminal.
 
+👉 日本語版は [こちら](ja/index.md) から参照できます。
+
 ## Highlights
 
 - **CSV ingestion with alias matching** for Japanese/English exports and optional master data enrichment.【F:src/tracability/infrastructure/csv/loader.py†L1-L170】

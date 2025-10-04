@@ -3,6 +3,8 @@
 The `trcli` command exposes the traceability graph through a Typer-powered interface. This guide explains command structure,
 options, and practical workflows for day-to-day analysis.
 
+👉 日本語の CLI リファレンスは [こちら](../ja/guides/cli.md)。
+
 ## Entry Point
 
 Install the project (or run `uv sync`) and execute:

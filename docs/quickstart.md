@@ -2,6 +2,8 @@
 
 Follow this guide to ingest your first CSV files and issue a trace query from the command line.
 
+👉 日本語版のクイックスタートは [こちら](ja/quickstart.md)。
+
 ## 1. Install and Configure
 
 ```bash

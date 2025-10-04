@@ -3,6 +3,8 @@
 Tracability ships as a Python project managed with [uv](https://github.com/astral-sh/uv). The tool requires Python 3.13 or
 newer as defined in `pyproject.toml` and exposes a console script named `trcli`.【F:pyproject.toml†L5-L44】
 
+👉 日本語のインストールガイドは [こちら](ja/installation.md)。
+
 ## Requirements
 
 - Python ≥ 3.13

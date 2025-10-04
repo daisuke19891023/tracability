@@ -3,6 +3,8 @@
 A command line tool and Python library for exploring traceability relationships across business subsystems, functions, programs,
 and downstream artefacts such as screens, reports, and database tables.
 
+👉 日本語版の README は [README.ja.md](README.ja.md) を参照してください。
+
 The project is optimised for Japanese/English mixed CSV exports that are common in enterprise requirement management. Flexible
 parsing, breadth-first graph traversal, and multiple output formats make it easy to answer "where is this requirement used?" or
 "which programs touch this table?" directly from your modelling spreadsheets.
