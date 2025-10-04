@@ -1,81 +1,28 @@
-# Clean Interfaces
+# Tracability
 
-Welcome to **Clean Interfaces** - a flexible Python application framework with multiple interface types and comprehensive logging support.
+Tracability is a CSV-first traceability explorer. It turns system definition spreadsheets into a navigable graph that answers
+questions such as "which screens are connected to this function?" or "what tables does this program touch?" directly from the
+terminal.
 
-## Features
+## Highlights
 
--   🚀 **Multiple Interface Types**: Support for CLI and REST API interfaces
--   ⚙️ **Flexible Configuration**: Environment-based configuration with `.env` file support
--   📝 **Structured Logging**: Advanced logging with OpenTelemetry integration
--   🐍 **Modern Python**: Built with Python 3.13+ and modern tooling
--   ✅ **Comprehensive Testing**: Unit, API, and E2E test coverage
--   🔍 **Type Safety**: Full type hints with strict Pyright checking
--   🎨 **Code Quality**: Automated linting and formatting with Ruff
--   📦 **Dependency Management**: Managed with uv for fast, reliable builds
+- **CSV ingestion with alias matching** for Japanese/English exports and optional master data enrichment.【F:src/tracability/infrastructure/csv/loader.py†L1-L170】
+- **Configurable traversals** using breadth-first search with relation, depth, and direction controls.【F:src/tracability/domain/graph.py†L99-L207】
+- **CLI & Python APIs** providing consistent behaviour across automation scripts and interactive usage.【F:src/tracability/interfaces/cli/commands.py†L71-L196】【F:src/tracability/application/service.py†L39-L118】
 
-## Quick Start
+## Getting Started
 
-```bash
-# Clone the repository
-git clone https://github.com/your-username/clean-interfaces.git
-cd clean-interfaces
+1. Install dependencies with `uv sync` (Python 3.13+).【F:pyproject.toml†L5-L44】
+2. Prepare a `relations.csv` file and optional master files (screens/reports/tables).【F:src/tracability/infrastructure/csv/loader.py†L91-L170】
+3. Run your first query:
 
-# Install dependencies
-uv sync
+    ```bash
+    uv run trcli trace \
+      --relations data/relations.csv \
+      --from-level program \
+      --to-level table \
+      --target PRG110 \
+      --format list
+    ```
 
-# Copy environment configuration
-cp .env.example .env
-
-# Run the application (CLI mode)
-uv run python -m clean_interfaces.main
-
-# Run with custom environment file
-uv run python -m clean_interfaces.main --dotenv prod.env
-
-# Run REST API mode
-INTERFACE_TYPE=restapi uv run python -m clean_interfaces.main
-```
-
-## Project Overview
-
-Clean Interfaces provides a clean, extensible architecture for building Python applications with multiple interface types. Whether you need a command-line tool, a REST API, or both, Clean Interfaces has you covered.
-
-### Key Components
-
--   **Interface System**: Factory pattern for creating different interface types
--   **Configuration Management**: Pydantic-based settings with environment variable support
--   **Logging System**: Structured logging with multiple output formats and OpenTelemetry integration
--   **Type Safety**: Full type annotations with strict checking
-
-## Documentation Structure
-
--   **[Getting Started](installation.md)**: Installation and quick start guides
--   **[User Guide](guides/cli.md)**: Detailed guides for using the framework
--   **[API Reference](api/overview.md)**: Complete API documentation
--   **[Development](development/contributing.md)**: Contributing and development guides
-
-## Development Commands
-
-```bash
-# Run tests
-nox -s test
-
-# Run linting
-nox -s lint
-
-# Format code
-nox -s format_code
-
-# Type checking
-nox -s typing
-
-# Run all CI checks
-nox -s ci
-
-# Build documentation
-nox -s docs
-```
-
-## License
-
-This project is licensed under the MIT License.
+Explore the [Quick Start](quickstart.md) for a guided walkthrough and sample datasets.
