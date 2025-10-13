@@ -373,7 +373,7 @@ rich==14.1.0
     #   typer
 roman-numerals-py==3.1.0
     # via sphinx
-ruff==0.12.12
+ruff==0.14.0
     # via clean-interfaces (pyproject.toml)
 scalene==1.5.54
     # via clean-interfaces (pyproject.toml)
