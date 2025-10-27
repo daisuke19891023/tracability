@@ -401,7 +401,7 @@ rich==14.0.0
     #   scalene
 roman-numerals-py==3.1.0
     # via sphinx
-ruff==0.12.4
+ruff==0.14.2
     # via testproject (pyproject.toml)
 scalene==1.5.51
     # via testproject (pyproject.toml)
