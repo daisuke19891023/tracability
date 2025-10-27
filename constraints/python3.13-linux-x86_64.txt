@@ -431,7 +431,7 @@ trove-classifiers==2025.9.8.13
     # via hatchling
 truststore==0.10.4
     # via pdm
-typer==0.17.4
+typer==0.20.0
     # via clean-interfaces (pyproject.toml)
 typing-extensions==4.15.0
     # via
